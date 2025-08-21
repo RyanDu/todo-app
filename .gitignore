@@ -1,0 +1,18 @@
+# dotnet
+**/bin/
+**/obj/
+**/.vs/
+**/Migrations/
+
+# node
+node_modules/
+dist/
+
+# sqlite
+*.db
+*.db-shm
+*.db-wal
+
+# env
+.env
+.env.*
