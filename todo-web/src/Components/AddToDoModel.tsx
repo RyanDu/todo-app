@@ -61,21 +61,28 @@ function AddToDoModel({
     }
 
     return(
-        <div className="overlay" onClick={onClose}>
-            <div className="modal" 
+        <div className="overlay modal fade show d-block" onClick={onClose}>
+            <div className="modal-dialog modal-dialog-centered"
+                role="document" 
                 onClick={(e) => e.stopPropagation()}>
-                <h3>Add task</h3>
-                <form onSubmit={submit}>
-                    <input name="title" type="text" placeholder="what to do?"></input>
-                    <input name="categoryId" type="number"></input>
-                    <input name="taskStartTime"></input>
-                    <input name="taskFinishTime"></input>
-                    <textarea name="description" placeholder="Tell more details"></textarea>
-                    <div className="actions">
-                        <button type="button" onClick={onClose} className="btn cancel">Cancel</button>
-                        <button type="submit" className="btn primary">Create</button>
+                <div className="modal-content">
+                    <div className="modal-header">
+                        <h5 className="modal-title">Add task</h5>
                     </div>
-                </form>
+                    <div className="modal-body">
+                        <form onSubmit={submit}>
+                            <input className="form-control" name="title" type="text" placeholder="what to do?"></input>
+                            <input className="form-control" name="categoryId" type="number"></input>
+                            <input className="form-control" name="taskStartTime"></input>
+                            <input className="form-control" name="taskFinishTime"></input>
+                            <textarea className="form-control" name="description" placeholder="Tell more details"></textarea>
+                            <div className="col-12 d-flex justify-content-end gap-2">
+                                <button type="button" onClick={onClose} className="btn cancel">Cancel</button>
+                                <button type="submit" className="btn primary">Create</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
     );
