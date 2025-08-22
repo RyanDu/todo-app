@@ -14,7 +14,7 @@ public class TodosController(AppDbContext db) : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<TodoItem>>> Get([FromQuery] bool? isDone)
     {
-        var query = db.Todos.AsQueryable();
+        var query = db.Todos.Where(x => x.Void == 0).AsQueryable();
         if (isDone.HasValue) query = query.Where(t => t.IsDone == isDone.Value);
 
         var items = await query.OrderByDescending(t => t.Id).ToListAsync();
@@ -25,7 +25,7 @@ public class TodosController(AppDbContext db) : ControllerBase
     [HttpGet("{id:int}")]
     public async Task<ActionResult<TodoItem>> GetById(int id)
     {
-        var todo = await db.Todos.FirstOrDefaultAsync(t => t.Id == id);
+        var todo = await db.Todos.FirstOrDefaultAsync(t => t.Id == id && t.Void == 0);
         return todo is null ? NotFound() : Ok(todo);
     }
 
@@ -49,7 +49,7 @@ public class TodosController(AppDbContext db) : ControllerBase
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, [FromBody] TodoItem input)
     {
-        var todo = await db.Todos.FindAsync(id);
+        var todo = await db.Todos.FirstOrDefaultAsync(x => x.Id == id && x.Void == 0);
         if (todo is null) return NotFound();
 
         todo.Title = input.Title;
@@ -68,7 +68,7 @@ public class TodosController(AppDbContext db) : ControllerBase
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var todo = await db.Todos.FindAsync(id);
+        var todo = await db.Todos.FirstOrDefaultAsync(x => x.Id == id && x.Void == 0);
         if (todo is null) return NotFound();
         todo.Void = 1;
         await db.SaveChangesAsync();
