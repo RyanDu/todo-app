@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import AddToDoModel from './Components/AddToDoModel';
+import { Sections } from './Components/Sections';
 
-type Todo = { 
+export type Todo = { 
   id: number; 
   title: string; 
   description: string;
@@ -24,6 +25,9 @@ export default function App() {
 
   useEffect(() => { load(); }, []);
 
+  const completedTasks = todos.filter((task) => task.isDone);
+  const activeTasks = todos.filter((task) => !task.isDone);
+
   const toggle = async (id: number, isDone: boolean, title: string) => {
     await fetch(`/api/todos/${id}`, {
       method: 'PUT',
@@ -43,7 +47,7 @@ export default function App() {
       <h1>Todo</h1>
       <button onClick={() => setOpenWindow(true)} className='btn primary'>Add</button>
       <AddToDoModel open={openWindow} onClose={() => setOpenWindow(false)} onCreated={load} />
-      <ul>
+      {/* <ul>
         {todos.map(t => (
           <li key={t.id} style={{ display:'flex', gap:8, alignItems:'center' }}>
             <input type="checkbox" checked={t.isDone} onChange={()=>toggle(t.id, t.isDone, t.title)} />
@@ -51,7 +55,9 @@ export default function App() {
             <button onClick={()=>remove(t.id)}>Delete</button>
           </li>
         ))}
-      </ul>
+      </ul> */}
+      <Sections title="Active" taskArray={activeTasks}/>
+      <Sections title='Incomplete' taskArray={completedTasks}/>
     </main>
   );
 }
