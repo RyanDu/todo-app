@@ -47,17 +47,8 @@ export default function App() {
       <h1>Todo</h1>
       <button onClick={() => setOpenWindow(true)} className='btn primary'>Add</button>
       <AddToDoModel open={openWindow} onClose={() => setOpenWindow(false)} onCreated={load} />
-      {/* <ul>
-        {todos.map(t => (
-          <li key={t.id} style={{ display:'flex', gap:8, alignItems:'center' }}>
-            <input type="checkbox" checked={t.isDone} onChange={()=>toggle(t.id, t.isDone, t.title)} />
-            <span style={{ textDecoration: t.isDone ? 'line-through' : 'none' }}>{t.title}</span>
-            <button onClick={()=>remove(t.id)}>Delete</button>
-          </li>
-        ))}
-      </ul> */}
-      <Sections title="Active" taskArray={activeTasks}/>
-      <Sections title='Incomplete' taskArray={completedTasks}/>
+      <Sections title="Active" taskArray={activeTasks} onToggle={toggle} onDelete={remove}/>
+      <Sections title='Incomplete' taskArray={completedTasks} onToggle={toggle} onDelete={remove}/>
     </main>
   );
 }
