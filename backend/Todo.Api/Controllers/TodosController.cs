@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.EntityFrameworkCore;
 using Todo.Api.Data;
+using Todo.Api.Dtos;
 using Todo.Api.Models;
 
 namespace Todo.Api.Controllers;
@@ -31,34 +32,43 @@ public class TodosController(AppDbContext db) : ControllerBase
 
     // POST /api/todos
     [HttpPost]
-    public async Task<ActionResult<TodoItem>> Create([FromBody] TodoItem input)
+    public async Task<ActionResult<TodoItem>> Create([FromBody] TodoCreateDto dto)
     {
-        if (string.IsNullOrWhiteSpace(input.Title))
-        {
-            var ms = new ModelStateDictionary();
-            ms.AddModelError("title", "Title is required.");
-            return ValidationProblem(ms);
-        }
+        if (!ModelState.IsValid) return ValidationProblem(ModelState);
 
-        db.Todos.Add(input);
+        var entity = new TodoItem
+        {
+            Title = dto.Title,
+            Description = dto.Description ?? "",
+            IsDone = dto.IsDone,
+            CategoryId = dto.CategoryId ?? 0,
+            TaskStartTime = dto.TaskStartTime?.UtcDateTime,
+            TaskFinishTime = dto.TaskFinishTime?.UtcDateTime,
+            CreatedDateTime = DateTime.UtcNow,
+            ModifiedDateTime = DateTime.UtcNow
+        };
+
+        db.Todos.Add(entity);
         await db.SaveChangesAsync();
-        return CreatedAtAction(nameof(GetById), new { id = input.Id }, input);
+        return CreatedAtAction(nameof(GetById), new { id = entity.Id }, entity);
     }
 
     // PUT /api/todos/5
     [HttpPut("{id:int}")]
-    public async Task<IActionResult> Update(int id, [FromBody] TodoItem input)
+    public async Task<IActionResult> Update(int id, [FromBody] TodoUpdateDto dto)
     {
-        var todo = await db.Todos.FirstOrDefaultAsync(x => x.Id == id && x.Void == 0);
-        if (todo is null) return NotFound();
+        if (!ModelState.IsValid) return ValidationProblem(ModelState);
 
-        todo.Title = input.Title;
-        todo.IsDone = input.IsDone;
-        todo.CategoryId = input.CategoryId;
-        todo.Description = input.Description;
-        todo.TaskStartTime = input.TaskStartTime;
-        todo.TaskFinishTime = input.TaskFinishTime;
-        todo.ModifiedDateTime = DateTime.UtcNow;
+        var entity = await db.Todos.FindAsync(id);
+        if (entity is null) return NotFound();
+
+        entity.Title = dto.Title;
+        entity.Description = dto.Description ?? "";
+        entity.IsDone = dto.IsDone;
+        entity.CategoryId = dto.CategoryId ?? 0;
+        entity.TaskStartTime = dto.TaskStartTime?.UtcDateTime;
+        entity.TaskFinishTime = dto.TaskFinishTime?.UtcDateTime;
+        entity.ModifiedDateTime = DateTime.UtcNow;
 
         await db.SaveChangesAsync();
         return NoContent();

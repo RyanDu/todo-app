@@ -37,11 +37,16 @@ function AddToDoModel({
         const taskStartTime = formData.get("taskStartTime");
         const taskFinishTime = formData.get("taskFinishTime");
 
-        await fetch("/api/todos", {
+        var res = await fetch("/api/todos", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify({title, description, categoryId, taskStartTime, taskFinishTime, isDone:false})
         });
+
+        if(!res.ok){
+            const msg = await res.text();
+            throw new Error(`POST/api/todos ${res.status} ${msg}`);
+        }
 
         onCreated?.();
         onClose();
@@ -54,7 +59,7 @@ function AddToDoModel({
                 <h3>Add task</h3>
                 <form onSubmit={submit}>
                     <input name="title" type="text" placeholder="what to do?"></input>
-                    <input name="category" type="number"></input>
+                    <input name="categoryId" type="number"></input>
                     <input name="taskStartTime"></input>
                     <input name="taskFinishTime"></input>
                     <textarea name="description" placeholder="Tell more details"></textarea>
