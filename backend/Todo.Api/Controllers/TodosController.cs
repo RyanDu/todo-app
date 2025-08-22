@@ -10,14 +10,12 @@ namespace Todo.Api.Controllers;
 [Route("api/[controller]")]
 public class TodosController(AppDbContext db) : ControllerBase
 {
-    // GET /api/todos?isDone=true&q=read
+    //GET /api/todos?isDone=true
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<TodoItem>>> Get([FromQuery] bool? isDone, [FromQuery] string? q)
+    public async Task<ActionResult<IEnumerable<TodoItem>>> Get([FromQuery] bool? isDone)
     {
         var query = db.Todos.AsQueryable();
         if (isDone.HasValue) query = query.Where(t => t.IsDone == isDone.Value);
-        if (!string.IsNullOrWhiteSpace(q))
-            query = query.Where(t => EF.Functions.Like(t.Title, $"%{q}%"));
 
         var items = await query.OrderByDescending(t => t.Id).ToListAsync();
         return Ok(items);
@@ -56,7 +54,11 @@ public class TodosController(AppDbContext db) : ControllerBase
 
         todo.Title = input.Title;
         todo.IsDone = input.IsDone;
-        //todo.CategoryId = input.CategoryId;
+        todo.CategoryId = input.CategoryId;
+        todo.Description = input.Description;
+        todo.TaskStartTime = input.TaskStartTime;
+        todo.TaskFinishTime = input.TaskFinishTime;
+        todo.ModifiedDateTime = DateTime.UtcNow;
 
         await db.SaveChangesAsync();
         return NoContent();
@@ -68,7 +70,7 @@ public class TodosController(AppDbContext db) : ControllerBase
     {
         var todo = await db.Todos.FindAsync(id);
         if (todo is null) return NotFound();
-        db.Remove(todo);
+        todo.Void = 1;
         await db.SaveChangesAsync();
         return NoContent();
     }
