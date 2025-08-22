@@ -32,7 +32,7 @@ public class TodosController(AppDbContext db) : ControllerBase
 
     // POST /api/todos
     [HttpPost]
-    public async Task<ActionResult<TodoItem>> Create([FromBody] TodoCreateDto dto)
+    public async Task<IActionResult> Create([FromBody] TodoCreateDto dto)
     {
         if (!ModelState.IsValid) return ValidationProblem(ModelState);
 

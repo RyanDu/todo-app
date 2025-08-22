@@ -34,13 +34,21 @@ function AddToDoModel({
 
         const description = (formData.get("description") || "").toString();
         const categoryId = formData.get("categoryId");
-        const taskStartTime = formData.get("taskStartTime");
-        const taskFinishTime = formData.get("taskFinishTime");
+        const taskStartTime = formData.get("taskStartTime")?.toString();
+        const taskFinishTime = formData.get("taskFinishTime")?.toString();
+
+        const body: any = { title, description, categoryId, isDone: false };
+        if (taskStartTime && taskStartTime.trim() !== "") {
+        body.taskStartTime = new Date(taskStartTime).toISOString();
+        }
+        if (taskFinishTime && taskFinishTime.trim() !== "") {
+        body.taskFinishTime = new Date(taskFinishTime).toISOString();
+        }
 
         var res = await fetch("/api/todos", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({title, description, categoryId, taskStartTime, taskFinishTime, isDone:false})
+            body: JSON.stringify(body)
         });
 
         if(!res.ok){
