@@ -1,10 +1,22 @@
 import { useEffect, useState } from 'react';
+import AddToDoModel from './Components/AddToDoModel';
 
-type Todo = { id: number; title: string; isDone: boolean; createdAt: string };
+type Todo = { 
+  id: number; 
+  title: string; 
+  description: string;
+  isDone: boolean;
+  categoryId: number; 
+  taskStartTime: string;
+  taskFinishTime: string;
+  createdDateTime: string;
+  modifiedDateTime: string;
+};
 
 export default function App() {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [title, setTitle] = useState('');
+  const [openWindow, setOpenWindow] = useState(false);
 
   const load = async () => {
     const res = await fetch('/api/todos');
@@ -41,10 +53,8 @@ export default function App() {
   return (
     <main style={{ maxWidth: 600, margin: '40px auto', fontFamily: 'system-ui' }}>
       <h1>Todo</h1>
-      <div style={{ display:'flex', gap:8 }}>
-        <input value={title} onChange={e=>setTitle(e.target.value)} placeholder="Add a task..." style={{ flex:1 }} />
-        <button onClick={add}>Add</button>
-      </div>
+      <button onClick={() => setOpenWindow(true)} className='btn primary'>Add</button>
+      <AddToDoModel open={openWindow} onClose={() => setOpenWindow(false)} onCreated={load} />
       <ul>
         {todos.map(t => (
           <li key={t.id} style={{ display:'flex', gap:8, alignItems:'center' }}>
