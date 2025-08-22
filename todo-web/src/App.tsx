@@ -15,7 +15,6 @@ type Todo = {
 
 export default function App() {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [title, setTitle] = useState('');
   const [openWindow, setOpenWindow] = useState(false);
 
   const load = async () => {
@@ -24,17 +23,6 @@ export default function App() {
   };
 
   useEffect(() => { load(); }, []);
-
-  const add = async () => {
-    if (!title.trim()) return;
-    await fetch('/api/todos', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ title, isDone: false })
-    });
-    setTitle('');
-    await load();
-  };
 
   const toggle = async (id: number, isDone: boolean, title: string) => {
     await fetch(`/api/todos/${id}`, {
