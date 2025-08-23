@@ -45,19 +45,24 @@ function AddToDoModel({
         body.taskFinishTime = new Date(taskFinishTime).toISOString();
         }
 
-        var res = await fetch("/api/todos", {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify(body)
-        });
-
-        if(!res.ok){
-            const msg = await res.text();
-            throw new Error(`POST/api/todos ${res.status} ${msg}`);
+        try{
+            var res = await fetch("/api/todos", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(body)
+            });
+            if(!res.ok){
+                const msg = await res.text();
+                throw new Error(`POST/api/todos ${res.status} ${msg}`);
+            }
         }
-
-        onCreated?.();
-        onClose();
+        catch(e){
+            console.error(e)
+        }
+        finally{
+            onCreated?.();
+            onClose();
+        }
     }
 
     return(

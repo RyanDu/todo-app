@@ -15,6 +15,18 @@ export type Todo = {
   modifiedDateTime: string;
 };
 
+const toServerShape = (t: Todo) => ({
+  Id: t.id,
+  Title: t.title,
+  Description: t.description,
+  IsDone: t.isDone,
+  CategoryId: t.categoryId,
+  TaskStartTime: t.taskStartTime,
+  TaskFinishTime: t.taskFinishTime,
+  CreatedDateTime: t.createdDateTime,
+  ModifiedDateTime: t.modifiedDateTime,
+});
+
 export default function App() {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [openWindow, setOpenWindow] = useState(false);
@@ -29,18 +41,41 @@ export default function App() {
   const completedTasks = todos.filter((task) => task.isDone);
   const activeTasks = todos.filter((task) => !task.isDone);
 
-  const toggle = async (id: number, isDone: boolean, title: string) => {
-    await fetch(`/api/todos/${id}`, {
-      method: 'PUT',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ id, title, isDone: !isDone })
-    });
-    await load();
+  const onTaskChange = async (task: Todo, patch: Partial<Todo>) => {
+    try{
+        const merged: Todo = {
+        ...task,
+        ...patch,
+        modifiedDateTime: new Date().toISOString(),
+      };
+
+      const payload = toServerShape(merged);
+
+      const res = await fetch(`/api/todos/${task.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        console.error("Update failed:", res.status, await res.text());
+        return;
+      }
+      await load();
+    }
+    catch(e){
+      console.error(e);
+    }
   };
 
   const remove = async (id: number) => {
-    await fetch(`/api/todos/${id}`, { method: 'DELETE' });
-    await load();
+    try{
+      await fetch(`/api/todos/${id}`, { method: 'DELETE' });
+      await load();
+    }
+    catch(e){
+      console.error(e);
+    }
   };
 
   return (
@@ -56,10 +91,10 @@ export default function App() {
         <AddToDoModel open={openWindow} onClose={() => setOpenWindow(false)} onCreated={load} />
         <div className="row g-4 justify-content-center flex-grow-1">
           <div className="col-12 col-lg-6 d-flex">
-            <Sections title="Active" taskArray={activeTasks} onToggle={toggle} onDelete={remove}/>
+            <Sections title="Active" taskArray={activeTasks} onTaskChange={onTaskChange} onDelete={remove}/>
           </div>
           <div className="col-12 col-lg-6 d-flex">
-            <Sections title='Incomplete' taskArray={completedTasks} onToggle={toggle} onDelete={remove}/>
+            <Sections title='Incomplete' taskArray={completedTasks} onTaskChange={onTaskChange} onDelete={remove}/>
           </div>
         </div>
       </main>
