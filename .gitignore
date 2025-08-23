@@ -41,3 +41,5 @@ package-lock.json
 # === Visual Studio Code ===
 .vscode/
 .history/
+
+.DS_Store
