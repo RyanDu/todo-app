@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import AddToDoModel from './Components/AddToDoModel';
 import { Sections } from './Components/Sections';
+import './App.css';
 
 export type Todo = { 
   id: number; 
@@ -43,12 +44,25 @@ export default function App() {
   };
 
   return (
-    <main style={{ maxWidth: 600, margin: '40px auto', fontFamily: 'system-ui' }}>
-      <h1>Todo</h1>
-      <button onClick={() => setOpenWindow(true)} className='btn primary'>Add</button>
-      <AddToDoModel open={openWindow} onClose={() => setOpenWindow(false)} onCreated={load} />
-      <Sections title="Active" taskArray={activeTasks} onToggle={toggle} onDelete={remove}/>
-      <Sections title='Incomplete' taskArray={completedTasks} onToggle={toggle} onDelete={remove}/>
-    </main>
+    <div className="home-root d-flex flex-column align-items-center">
+      <header className="text-center text-light mt-5 mb-4">
+        <h1 className="fw-bold display-5">To do</h1>
+        <button className="btn btn-primary mt-3" onClick={()=>setOpenWindow(true)}>
+          <i className="bi bi-plus-lg me-1" />
+          Add
+        </button>
+      </header>
+      <main className="container-fluid flex-grow-1 d-flex align-items-stretch pb-5">
+        <AddToDoModel open={openWindow} onClose={() => setOpenWindow(false)} onCreated={load} />
+        <div className="row g-4 justify-content-center flex-grow-1">
+          <div className="col-12 col-lg-6 d-flex">
+            <Sections title="Active" taskArray={activeTasks} onToggle={toggle} onDelete={remove}/>
+          </div>
+          <div className="col-12 col-lg-6 d-flex">
+            <Sections title='Incomplete' taskArray={completedTasks} onToggle={toggle} onDelete={remove}/>
+          </div>
+        </div>
+      </main>
+    </div>
   );
 }

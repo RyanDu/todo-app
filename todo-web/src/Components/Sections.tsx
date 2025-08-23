@@ -9,7 +9,7 @@ export function Sections({title, taskArray, onToggle, onDelete}
     onDelete: (id: number) => void;
 }){
     return (
-        <div className="section">
+        <div className="section glass-card h-100 w-100 p-4">
             {taskArray.length > 0?
                 taskArray.map((task) => 
                     <Card 
@@ -18,7 +18,9 @@ export function Sections({title, taskArray, onToggle, onDelete}
                         onToggle={onToggle}
                         onDelete={onDelete}/>
                 )
-            : <p>You don't have {title} tasks.</p>}
+            : <div className="text-secondary fs-6">
+                You don't have {title} tasks.
+              </div>}
         </div>
     );
 }
