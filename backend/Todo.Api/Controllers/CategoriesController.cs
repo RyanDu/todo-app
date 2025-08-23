@@ -28,7 +28,7 @@ public class CategoriesController(AppDbContext db) : ControllerBase
     }
 
     [HttpGet("{id:int}")]
-    public async Task<IActionResult> Get(int id)
+    public async Task<IActionResult> GetById(int id)
     {
         var c = await db.Categories.FirstOrDefaultAsync(c => c.Id == id && c.Void == 0);
         return c is null ? NotFound() : Ok(c);
@@ -46,7 +46,7 @@ public class CategoriesController(AppDbContext db) : ControllerBase
 
         db.Categories.Add(input);
         await db.SaveChangesAsync();
-        return CreatedAtAction(nameof(Get), new { id = input.Id }, input);
+        return CreatedAtAction(nameof(GetById), new { id = input.Id }, input);
     }
 
     [HttpPut("{id:int}")]
@@ -62,7 +62,6 @@ public class CategoriesController(AppDbContext db) : ControllerBase
         }
 
         c.CategoryTitle = input.CategoryTitle;
-        c.Description = input.Description;
         c.ModifiedDateTime = DateTime.UtcNow;
 
         await db.SaveChangesAsync();

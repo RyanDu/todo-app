@@ -1,4 +1,5 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useCategoryIndex } from "../hooks/useCategoryIndex";
 
 export function useEscClose(onClose: ()=>void){
     useEffect(() => {
@@ -21,9 +22,21 @@ function AddToDoModel({
     onClose: ()=>void;
     onCreated: ()=>void;
 }){
+    const {trie, addCategory} = useCategoryIndex();
+    const [categoryInput, setCategoryInput] = useState('');
+
+    const suggestions = trie.search(categoryInput, 8);
+
     useEscClose(onClose);
 
     if(!open) return null;
+
+    const ensureCategory = async (name: string) => {
+        const id = trie.getId(name);
+        if (id) return id;
+        const created = await addCategory(name);
+        return created.id;
+    };
 
     const submit: React.FormEventHandler<HTMLFormElement> = async (e) =>{
         e.preventDefault();
@@ -33,9 +46,9 @@ function AddToDoModel({
         if(!title) return;
 
         const description = (formData.get("description") || "").toString();
-        const categoryId = formData.get("categoryId");
         const taskStartTime = formData.get("taskStartTime")?.toString();
         const taskFinishTime = formData.get("taskFinishTime")?.toString();
+        const categoryId = await ensureCategory(categoryInput.trim() || 'Default');
 
         const body: any = { title, description, categoryId, isDone: false };
         if (taskStartTime && taskStartTime.trim() !== "") {
@@ -77,7 +90,30 @@ function AddToDoModel({
                     <div className="modal-body">
                         <form onSubmit={submit}>
                             <input className="form-control" name="title" type="text" placeholder="what to do?"></input>
-                            <input className="form-control" name="categoryId" type="number"></input>
+                            <input 
+                                className="form-control" 
+                                name="categoryId" 
+                                type="text" 
+                                placeholder="category" 
+                                value={categoryInput}
+                                onChange={(e) => setCategoryInput(e.target.value)}
+                                autoComplete="off"></input>
+                            {suggestions.length > 0 && (
+                                <div className="list-group position-absolute w-100 shadow" style={{zIndex: 10}}>
+                                    {suggestions.map(s => (
+                                        <button
+                                            type="button"
+                                            key={s.id}
+                                            className="list-group-item list-group-item-action"
+                                            onClick={() => {
+                                                setCategoryInput(s.name);
+                                            }}
+                                        >
+                                            {s.name}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
                             <input className="form-control" name="taskStartTime"></input>
                             <input className="form-control" name="taskFinishTime"></input>
                             <textarea className="form-control" name="description" placeholder="Tell more details"></textarea>
