@@ -18,9 +18,9 @@ export function Card({task, onTaskChange, onDelete}
     },[])
 
     return(
-        <div className="card">
+        <div className="card mb-2">
             <h4>{task.title}</h4>
-            <div className="d-flex justify-content-between align-items-center">
+            <div className="d-flex justify-content-between align-items-center pb-2">
                 <div className="form-check">
                     <input
                     type="checkbox"

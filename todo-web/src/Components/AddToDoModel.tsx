@@ -24,6 +24,13 @@ function AddToDoModel({
 }){
     const {trie, addCategory} = useCategoryIndex();
     const [categoryInput, setCategoryInput] = useState('');
+    const [isFocus, setIsFocus] = useState(false);
+
+    useEffect(() => {
+        if(open){
+            setCategoryInput('');
+        }
+    }, [open]);
 
     const suggestions = trie.search(categoryInput, 8);
 
@@ -74,6 +81,7 @@ function AddToDoModel({
         }
         finally{
             onCreated?.();
+            setCategoryInput('');
             onClose();
         }
     }
@@ -97,8 +105,9 @@ function AddToDoModel({
                                 placeholder="category" 
                                 value={categoryInput}
                                 onChange={(e) => setCategoryInput(e.target.value)}
+                                onFocus={() => setIsFocus(true)}
                                 autoComplete="off"></input>
-                            {suggestions.length > 0 && (
+                            {isFocus && suggestions.length > 0 && (
                                 <div className="list-group position-absolute w-100 shadow" style={{zIndex: 10}}>
                                     {suggestions.map(s => (
                                         <button
