@@ -25,12 +25,20 @@ function AddToDoModel({
     const {trie, addCategory} = useCategoryIndex();
     const [categoryInput, setCategoryInput] = useState('');
     const [isFocus, setIsFocus] = useState(false);
+    const [haveDate, setHaveDate] = useState(false);
+    const [selectedId, setSelectedId] = useState<number | null>(null);
 
     useEffect(() => {
         if(open){
             setCategoryInput('');
         }
     }, [open]);
+
+    useEffect(() => {
+        if (open) {
+        onClose();
+        }
+    }, []);
 
     const suggestions = trie.search(categoryInput, 8);
 
@@ -97,15 +105,16 @@ function AddToDoModel({
                     </div>
                     <div className="modal-body">
                         <form onSubmit={submit}>
-                            <input className="form-control" name="title" type="text" placeholder="what to do?"></input>
+                            <input className="form-control mb-2" name="title" type="text" placeholder="what to do?"></input>
                             <input 
-                                className="form-control" 
+                                className="form-control mb-2" 
                                 name="categoryId" 
                                 type="text" 
                                 placeholder="category" 
                                 value={categoryInput}
                                 onChange={(e) => setCategoryInput(e.target.value)}
                                 onFocus={() => setIsFocus(true)}
+                                onBlur={() => setIsFocus(false)}
                                 autoComplete="off"></input>
                             {isFocus && suggestions.length > 0 && (
                                 <div className="list-group position-absolute w-100 shadow" style={{zIndex: 10}}>
@@ -113,18 +122,40 @@ function AddToDoModel({
                                         <button
                                             type="button"
                                             key={s.id}
-                                            className="list-group-item list-group-item-action"
-                                            onClick={() => {
+                                            className={`list-group-item list-group-item-action ${selectedId === s.id ? "active" : ""}`}
+                                            onMouseDown={(e) => {
+                                                e.preventDefault();
                                                 setCategoryInput(s.name);
+                                                setSelectedId(s.id);
+                                                setIsFocus(false);
                                             }}
+                                            aria-selected={selectedId === s.id}
                                         >
                                             {s.name}
                                         </button>
                                     ))}
                                 </div>
                             )}
-                            <input className="form-control" name="taskStartTime"></input>
-                            <input className="form-control" name="taskFinishTime"></input>
+                            <input
+                                type="checkbox"
+                                className="form-check-input"
+                                checked={haveDate}
+                                onChange={() => setHaveDate(!haveDate)}
+                                id="haveDate"
+                            />
+                            <label className="form-check-label ms-2" htmlFor="haveDate">
+                            Have date?
+                            </label>
+                            {haveDate && <div className="row">
+                                <div className="col">
+                                    <input type="date" className="form-control" name="taskStartTime"></input>
+                                    <small className="form-text text-muted">Start time</small>
+                                </div>
+                                <div className="col">
+                                    <input type="date" className="form-control" name="taskFinishTime"></input>
+                                    <small className="form-text text-muted">Finish time</small>
+                                </div>
+                            </div>}
                             <textarea className="form-control" name="description" placeholder="Tell more details"></textarea>
                             <div className="col-12 d-flex justify-content-end gap-2">
                                 <button type="button" onClick={onClose} className="btn cancel">Cancel</button>
