@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import type {Todo} from "../App";
+import { useCategoryIndex } from "../hooks/useCategoryIndex";
+import CategoryTag from "./CategoryTag";
 
 export function Card({task, onTaskChange, onDelete} 
 : {
@@ -11,6 +13,10 @@ export function Card({task, onTaskChange, onDelete}
     const [haveDate, setHaveDate] = useState(false);
     const [desc, setDesc] = useState(task.description);
 
+    const { categories } = useCategoryIndex();
+
+    const category = categories.find(c => c.id === task.categoryId);
+
     useEffect(() => {
         if(task.taskStartTime && task.taskFinishTime){
             setHaveDate(true);
@@ -20,6 +26,7 @@ export function Card({task, onTaskChange, onDelete}
     return(
         <div className="card mb-2">
             <h4>{task.title}</h4>
+            <CategoryTag name={category?.categoryTitle} scheme="hsl" />
             <div className="d-flex justify-content-between align-items-center pb-2">
                 <div className="form-check">
                     <input
